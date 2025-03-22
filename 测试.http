@@ -1,0 +1,226 @@
+### 用户注册测试
+POST http://127.0.0.1:1760/api/register
+Content-Type: application/json
+
+{
+  "username": "zhangsan",
+  "password": "114514",
+  "email": "aabbcc@qq.com",
+  "age": 24,
+  "signature": "哈哈哈",
+  "gender": "男",
+  "avatar": ""
+}
+
+### 用户登录测试
+POST http://127.0.0.1:1760/api/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456",
+  "role": "2"
+}
+
+### 用户注销测试
+POST http://127.0.0.1:1760/api/logout
+Content-Type: application/x-www-form-urlencoded
+
+role = 0
+
+### 获取找回密码验证码测试
+# @no-cookie-jar
+POST http://127.0.0.1:1760/api/captcha/resetPassword
+Content-Type: application/json
+
+{
+  "email": "1281651918@qq.com",
+  "username": "bryan2233"
+}
+
+### 找回密码测试
+# @no-cookie-jar
+POST http://127.0.0.1:1760/api/resetPassword
+Content-Type: application/json
+
+{
+  "username": "bryan2233",
+  "email": "1281651918@qq.com",
+  "newPassword": "123456",
+  "confirmPassword": "123456",
+  "verifyCode": "468433"
+}
+
+### 获取修改邮箱验证码测试
+POST http://127.0.0.1:1760/api/captcha/changeEmail
+Content-Type: application/json
+
+{
+  "newEmail": "bryanliang@yeah.net",
+  "userId": 6
+}
+
+### 修改邮箱测试
+POST http://127.0.0.1:1760/api/users/changeEmail
+Content-Type: application/json
+
+{
+  "userId": 6,
+  "newEmail": "bryanliang@yeah.net",
+  "verifyCode": "787732"
+}
+
+### 获取修改密码验证码测试
+POST http://127.0.0.1:1760/api/captcha/changePassword
+Content-Type: application/json
+
+{
+  "userId": 6
+}
+
+### 修改密码测试
+POST http://127.0.0.1:1760/api/users/changePassword
+Content-Type: application/json
+
+{
+  "userId": 6,
+  "oldPassword": "123456",
+  "newPassword": "111111",
+  "confirmPassword": "111111",
+  "verifyCode": "057317"
+}
+
+### 获取识别收藏测试
+POST http://127.0.0.1:1760/api/collection/findByPage
+Content-Type: application/x-www-form-urlencoded
+
+userId = 6 &
+pageNum = 1 &
+pageSize = 5
+
+### 取消收藏测试
+POST http://127.0.0.1:1760/api/collection/unCollect
+Content-Type: application/x-www-form-urlencoded
+
+id =  &
+userId = 6
+
+### 测试获取订单
+GET http://127.0.0.1:1760/api/order/findByPage?userId=6&pageNum=1&pageSize=10
+
+### 测试获取最近订单
+GET http://127.0.0.1:1760/api/order/getRecent?userId=6
+
+### 测试发送订单信息
+POST http://127.0.0.1:1760/api/order/add
+Content-Type: application/json
+
+{
+  "userId": 6,
+  "address": {
+    "province": "",
+    "area": "",
+    "city": "",
+    "detail": "",
+    "name": "",
+    "phoneNum": "",
+    "pickupTime": ""
+  },
+  "waste": {
+    "name": "",
+    "type": null,
+    "weight": 0,
+    "description": "",
+    "unit": "",
+    "photos": null
+  }
+}
+
+### 测试获取识别收藏
+POST http://localhost:1760/api/collection/findByPage
+Content-Type: application/x-www-form-urlencoded
+
+userId = 10
+
+### 测试管理员获取识别收藏
+POST http://localhost:1760/api/admin/collection/findByPage
+Content-Type: application/x-www-form-urlencoded
+
+### 测试管理员获取知识小测题目
+POST http://localhost:1760/api/admin/quiz/findByPage
+
+### 测试管理员删除知识小测题目
+POST http://localhost:1760/api/admin/quiz/delete
+Content-Type: application/x-www-form-urlencoded
+
+questionId = 1
+
+### 测试管理员创建普通用户
+POST http://localhost:1760/api/admin/users/save
+Content-Type: application/json
+
+{
+  "username": "zhangsan",
+  "email": "zhangsan@qq.com",
+  "password": "1111",
+  "age": 20,
+  "gender": "男",
+  "participationCount": 0,
+  "totalRecycleAmount": 0.00,
+  "avatar": "",
+  "signature": ""
+}
+
+### 测试管理员修改密码
+POST http://localhost:1760/api/admin/updatePassword
+Content-Type: application/x-www-form-urlencoded
+
+adminId = 1 &
+oldPassword = password &
+newPassword = 123456 &
+confirmPassword = 123456
+
+### 测试管理员获取回收订单信息
+POST http://localhost:1760/api/admin/order/findByPage
+Content-Type: application/x-www-form-urlencoded
+
+pageNum = 1 &
+pageSize = 2 &
+username = bryan2233
+
+### 测试管理员订单
+POST http://localhost:1760/api/admin/order/save
+Content-Type: application/json
+
+{
+  "id": "",
+  "userId": "",
+  "waste": {
+    "type": 2,
+    "name": "纸巾",
+    "weight": 1,
+    "unit": 1,
+    "description": "纸巾",
+    "photos": [
+      {
+        "imagePath": "needDelete"
+      }
+    ]
+  },
+  "address": {
+    "name": "王五",
+    "phoneNum": "18976203955",
+    "province": "山西省",
+    "city": "长治市",
+    "area": "潞城区",
+    "detail": "哈哈路11号",
+    "pickupTime": "03月21日 17:00~19:00"
+  },
+  "orderDate": "2025-03-19T09:49:38.000Z",
+  "orderStatus": 1,
+  "estimatedPrice": 1.5,
+  "actualPrice": null,
+  "createdAt": "",
+  "updatedAt": "",
+  "username": "bryan2333"
+}

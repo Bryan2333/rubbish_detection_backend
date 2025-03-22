@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bryan.rubbish_detection_backend.mapper.RubbishTypeDescMapper">
+    <!-- 结果映射 -->
+    <resultMap id="RubbishTypeDescMap" type="com.bryan.rubbish_detection_backend.entity.RubbishTypeDesc">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="description" column="description"/>
+
+        <!-- 处理建议集合 -->
+        <collection property="disposalAdvice" ofType="string">
+            <result column="disposal_advice"/>
+        </collection>
+
+        <!-- 处理方法集合 -->
+        <collection property="handleMethods" ofType="string">
+            <result column="handle_method"/>
+        </collection>
+
+        <!-- 常见物品集合 -->
+        <collection property="commonThings" ofType="string">
+            <result column="common_thing"/>
+        </collection>
+    </resultMap>
+
+    <!-- 根据类型查询所有数据 -->
+    <select id="getCompleteInfoByType" resultMap="RubbishTypeDescMap">
+        SELECT g.id,
+               g.name,
+               g.type,
+               g.description,
+               gda.advice AS disposal_advice,
+               ghm.method AS handle_method,
+               gct.thing  AS common_thing
+        FROM rubbish_type_desc g
+                 LEFT JOIN rubbish_type_disposal_advice gda ON g.id = gda.rubbish_id
+                 LEFT JOIN rubbish_type_handle_methods ghm ON g.id = ghm.rubbish_id
+                 LEFT JOIN rubbish_type_common_things gct ON g.id = gct.rubbish_id
+        WHERE g.type = #{type}
+    </select>
+</mapper>

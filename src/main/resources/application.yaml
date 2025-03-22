@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: rubbish_detection_backend
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/rubbish_detection_system
+    username: bryan
+    password: password
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      pool-name: HikariPool
+      minimum-idle: 5
+      idle-timeout: 600000
+      maximum-pool-size: 10
+      auto-commit: true
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  mvc:
+    static-path-pattern: /static/**
+  web:
+    resources:
+      static-locations:
+        - file:/home/bryan/Downloads/rubbish_detection/
+  data:
+    redis:
+      database: 0
+      host: 127.0.0.1
+      port: 6379
+      password: password
+      timeout: 10s
+      lettuce:
+        pool:
+          max-active: 200
+          max-wait: -1ms
+          max-idle: 10
+          min-idle: 0
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: xxxxx@qq.com
+    password: xxxx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    cache-enabled: true
+
+server:
+  port: 1760
+  address: 0.0.0.0
+
+app:
+  static:
+    avatar-dir: /home/bryan/Downloads/rubbish_detection/avatars
+    collection-image-dir: /home/bryan/Downloads/rubbish_detection/collection_images
+    waste-image-dir: /home/bryan/Downloads/rubbish_detection/waste_images
+    verify-code-prefix: "email:verify_code:"
+
+
