@@ -3,6 +3,8 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bryan.rubbish_detection_backend.mapper.RubbishTypeDescMapper">
+    <cache-ref namespace="com.bryan.rubbish_detection_backend.mapper.RubbishTypeDescMapper"/>
+
     <!-- 结果映射 -->
     <resultMap id="RubbishTypeDescMap" type="com.bryan.rubbish_detection_backend.entity.RubbishTypeDesc">
         <id property="id" column="id"/>
@@ -10,35 +12,58 @@
         <result property="type" column="type"/>
         <result property="description" column="description"/>
 
-        <!-- 处理建议集合 -->
-        <collection property="disposalAdvice" ofType="string">
-            <result column="disposal_advice"/>
-        </collection>
+        <!-- 投掷建议集合 -->
+        <result column="disposal_advice"
+                property="disposalAdvice"
+                javaType="java.util.List"
+                jdbcType="VARCHAR"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
 
         <!-- 处理方法集合 -->
-        <collection property="handleMethods" ofType="string">
-            <result column="handle_method"/>
-        </collection>
+        <result column="handle_method"
+                property="handleMethods"
+                javaType="java.util.List"
+                jdbcType="VARCHAR"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
 
         <!-- 常见物品集合 -->
-        <collection property="commonThings" ofType="string">
-            <result column="common_thing"/>
-        </collection>
+        <result column="common_thing"
+                property="commonThings"
+                javaType="java.util.List"
+                jdbcType="VARCHAR"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
     </resultMap>
+
+    <sql id="base_sql">
+        SELECT r.id,
+               r.name,
+               r.type,
+               r.description,
+               (SELECT JSON_ARRAYAGG(
+                               JSON_OBJECT('id', rda.id, 'rubbishId', r.id, 'advice', rda.advice)
+                       )
+                FROM rubbish_type_disposal_advice rda
+                WHERE rda.rubbish_id = r.id
+                  AND rda.is_deleted = 0) AS disposal_advice,
+               (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rhm.id, 'rubbishId', r.id, 'method', rhm.method))
+                FROM rubbish_type_handle_methods rhm
+                WHERE rhm.rubbish_id = r.id
+                  AND rhm.is_deleted = 0) AS handle_method,
+               (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', rct.id, 'rubbishId', r.id, 'thing', rct.thing))
+                FROM rubbish_type_common_things rct
+                WHERE rct.rubbish_id = r.id
+                  AND rct.is_deleted = 0) AS common_thing
+        FROM rubbish_type_desc r
+    </sql>
 
     <!-- 根据类型查询所有数据 -->
     <select id="getCompleteInfoByType" resultMap="RubbishTypeDescMap">
-        SELECT g.id,
-               g.name,
-               g.type,
-               g.description,
-               gda.advice AS disposal_advice,
-               ghm.method AS handle_method,
-               gct.thing  AS common_thing
-        FROM rubbish_type_desc g
-                 LEFT JOIN rubbish_type_disposal_advice gda ON g.id = gda.rubbish_id
-                 LEFT JOIN rubbish_type_handle_methods ghm ON g.id = ghm.rubbish_id
-                 LEFT JOIN rubbish_type_common_things gct ON g.id = gct.rubbish_id
-        WHERE g.type = #{type}
+        <include refid="base_sql"/>
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="findByList" resultMap="RubbishTypeDescMap">
+        <include refid="base_sql"/>
+        ${ew.customSqlSegment}
     </select>
 </mapper>
