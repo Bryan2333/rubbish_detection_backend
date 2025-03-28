@@ -11,7 +11,7 @@ import jakarta.validation.groups.Default;
 import lombok.Data;
 
 @Data
-@TableName("admins")
+@TableName("sys_admin")
 public class Admin {
     @TableId(type = IdType.AUTO)
     private Long id;
