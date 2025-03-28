@@ -64,6 +64,7 @@ public class WebController {
             }
 
             StpKit.ADMIN.login(admin.getId());
+            StpKit.ADMIN.getSession().set("isSuper", admin.getIsSuper() == 1);
 
             return Result.success(admin);
         }
