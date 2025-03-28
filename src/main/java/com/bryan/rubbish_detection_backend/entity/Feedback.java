@@ -2,19 +2,21 @@ package com.bryan.rubbish_detection_backend.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.groups.Default;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class Feedback {
+@TableName("feedback")
+public class Feedback implements Serializable {
     @TableId(type = IdType.AUTO)
     @NotNull(
             message = "反馈ID不能为空",

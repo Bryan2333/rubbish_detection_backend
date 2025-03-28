@@ -7,15 +7,14 @@ import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.groups.Default;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @TableName("news")
-public class News {
+public class News implements Serializable {
     @NotNull(
             message = "新闻ID不能为空",
             groups = {

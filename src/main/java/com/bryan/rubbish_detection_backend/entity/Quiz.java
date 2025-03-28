@@ -7,11 +7,13 @@ import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @TableName("quiz")
-public class Quiz {
+public class Quiz implements Serializable {
     @NotNull(
             message = "题目ID不能为空",
             groups = {
@@ -45,9 +47,6 @@ public class Quiz {
     @Min(value = 0, message = "正确答案索引不能小于0")
     @Max(value = 3, message = "正确答案索引不能大于3")
     private Integer correctAnswerIndex;  // 正确答案索引
-
-    @JsonIgnore
-    private Integer status;        // 状态
 
     private LocalDateTime createTime;
 

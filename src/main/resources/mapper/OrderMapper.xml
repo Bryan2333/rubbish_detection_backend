@@ -79,13 +79,13 @@
                                        'updatedAt', wp.updated_at
                                )
                        )
-                FROM waste_photos wp
+                FROM order_waste_photo wp
                 WHERE wp.waste_id = w.id
                   AND wp.is_deleted = 0) AS waste_photos
         FROM orders o
-                 JOIN addresses a ON o.address_id = a.id
-                 JOIN wastes w ON o.waste_id = w.id
-                 LEFT JOIN users u ON o.user_id = u.id
+                 JOIN order_address a ON o.address_id = a.id
+                 JOIN order_waste w ON o.waste_id = w.id
+                 LEFT JOIN sys_user u ON o.user_id = u.id
     </sql>
 
     <select id="findByPage" parameterType="map" resultMap="OrderResultMap">
