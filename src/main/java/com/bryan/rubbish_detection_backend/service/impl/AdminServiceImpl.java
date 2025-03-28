@@ -1,5 +1,6 @@
 package com.bryan.rubbish_detection_backend.service.impl;
 
+import cn.dev33.satoken.session.SaSession;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -12,6 +13,7 @@ import com.bryan.rubbish_detection_backend.exception.CustomException;
 import com.bryan.rubbish_detection_backend.mapper.AdminMapper;
 import com.bryan.rubbish_detection_backend.service.AdminService;
 import com.bryan.rubbish_detection_backend.utils.ImageUtil;
+import com.bryan.rubbish_detection_backend.utils.StpKit;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -87,10 +89,10 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     }
 
     @Override
-    public Admin updateAdmin(Admin admin) {
+    public Admin updateAdmin(Admin admin, Boolean currentOperationIsSuper) {
         if (admin == null) throw new CustomException("参数异常");
 
-        Admin existAdmin = lambdaQuery().eq(Admin::getId, admin.getId()).one();
+        Admin existAdmin = lambdaQuery().eq(Admin::getId, admin.getId()).eq(Admin::getIsDeleted, 0).one();
         if (existAdmin == null) {
             throw new CustomException("用户不存在");
         }
@@ -105,6 +107,22 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         existAdmin.setPhone(admin.getPhone());
         existAdmin.setGender(admin.getGender());
 
+        if (!Objects.equals(existAdmin.getIsSuper(), admin.getIsSuper())) {
+            if (admin.getIsSuper() != 0 && admin.getIsSuper() != 1) {
+                throw new CustomException("参数异常");
+            }
+
+            if (Objects.equals(false, currentOperationIsSuper)) {
+                throw new CustomException("您无权力修改管理员权限");
+            }
+
+            existAdmin.setIsSuper(admin.getIsSuper());
+        }
+
+        if (StringUtils.hasText(admin.getPassword()) && currentOperationIsSuper) {
+            existAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        }
+
         if (StringUtils.hasText(admin.getAvatar())) {
             try {
                 String savedFilename = ImageUtil.saveBase64Image(admin.getAvatar(), avatarDir);
@@ -116,6 +134,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
 
         if (!updateById(existAdmin)) {
             throw new CustomException("更新管理员信息失败");
+        }
+
+        SaSession session = StpKit.ADMIN.getSessionByLoginId(admin.getId());
+        if (session != null) {
+            session.set("isSuper", admin.getIsSuper() == 1);
         }
 
         return existAdmin;

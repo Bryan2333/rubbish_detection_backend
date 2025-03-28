@@ -60,6 +60,8 @@ public class Admin {
     @Base64ImageConstraint
     private String avatar;
 
+    private Integer isSuper;
+
     @JsonIgnore
     private Integer isDeleted;
 }

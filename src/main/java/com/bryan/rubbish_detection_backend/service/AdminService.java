@@ -12,7 +12,7 @@ public interface AdminService extends IService<Admin> {
 
     Boolean createAdmin(Admin admin);
 
-    Admin updateAdmin(Admin admin);
+    Admin updateAdmin(Admin admin, Boolean currentOperationIsSuper);
 
     Boolean updatePassword(Long adminId, String oldPassword, String newPassword, String confirmPassword);
 }
