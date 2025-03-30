@@ -35,6 +35,8 @@
         <result column="orderStatus" property="orderStatus"/>
         <result column="estimatedPrice" property="estimatedPrice"/>
         <result column="actualPrice" property="actualPrice"/>
+        <result column="reviewRate" property="reviewRate"/>
+        <result column="reviewMessage" property="reviewMessage"/>
         <result column="createdAt" property="createdAt"/>
         <result column="updatedAt" property="updatedAt"/>
         <result column="username" property="username"/>
@@ -53,6 +55,8 @@
                o.order_status            AS orderStatus,
                o.estimated_price         AS estimatedPrice,
                o.actual_price            AS actualPrice,
+               o.review_rate             AS reviewRate,
+               o.review_message          AS reviewMessage,
                o.created_at              AS createdAt,
                o.updated_at              AS updatedAt,
                u.username                AS username,

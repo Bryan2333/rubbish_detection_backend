@@ -2,6 +2,7 @@ package com.bryan.rubbish_detection_backend.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -151,6 +152,73 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         List<Order> recentOrder = orderMapper.getRecentOrder(queryWrapper);
 
         return recentOrder.stream().map(this::orderToDTO).toList();
+    }
+
+    public Boolean cancelOrder(Long userId, Long orderId) {
+        if (userId == null || orderId == null) {
+            throw new CustomException("参数异常");
+        }
+
+        LambdaQueryWrapper<User> userExistQuery = new LambdaQueryWrapper<>();
+        userExistQuery.eq(User::getId, userId).eq(User::getIsDeleted, 0);
+        if (userMapper.selectCount(userExistQuery) <= 0) {
+            throw new CustomException("用户不存在");
+        }
+
+        LambdaQueryWrapper<Order> orderExistQuery = new LambdaQueryWrapper<>();
+        orderExistQuery.eq(Order::getId, orderId).eq(Order::getUserId, userId).eq(Order::getIsDeleted, 0).ne(Order::getOrderStatus, 3);
+        Order order = orderMapper.selectOne(orderExistQuery);
+        if (order == null) {
+            throw new CustomException("订单不存在");
+        }
+
+        LambdaUpdateWrapper<Order> orderUpdateWrapper = new LambdaUpdateWrapper<>();
+        orderUpdateWrapper
+                .set(Order::getOrderStatus, 3)
+                .eq(Order::getId, orderId)
+                .eq(Order::getUserId, userId)
+                .eq(Order::getIsDeleted, 0);
+        return orderMapper.update(orderUpdateWrapper) > 0;
+    }
+
+    public Boolean saveReview(Long userId, Long orderId, Integer reviewRate, String reviewMessage) {
+        if (userId == null || orderId == null || reviewRate == null || reviewMessage == null) {
+            throw new CustomException("参数异常");
+        }
+
+        LambdaQueryWrapper<User> userExistQuery = new LambdaQueryWrapper<>();
+        userExistQuery.eq(User::getId, userId).eq(User::getIsDeleted, 0);
+        if (userMapper.selectCount(userExistQuery) <= 0) {
+            throw new CustomException("用户不存在");
+        }
+
+        LambdaQueryWrapper<Order> orderExistQuery = new LambdaQueryWrapper<>();
+        orderExistQuery.eq(Order::getId, orderId).eq(Order::getUserId, userId).eq(Order::getIsDeleted, 0).eq(Order::getOrderStatus, 2);
+        Order order = orderMapper.selectOne(orderExistQuery);
+        if (order == null) {
+            throw new CustomException("订单不存在");
+        }
+
+        if (order.getReviewRate() != null) {
+            throw new CustomException("您已评价过该订单");
+        }
+
+        if (reviewRate < 1 || reviewRate > 5) {
+            throw new CustomException("评分范围为1-5");
+        }
+
+        if (reviewMessage.length() > 50) {
+            throw new CustomException("评价内容不能超过50个字");
+        }
+
+        LambdaUpdateWrapper<Order> orderUpdateWrapper = new LambdaUpdateWrapper<>();
+        orderUpdateWrapper
+                .set(Order::getReviewRate, reviewRate)
+                .set(Order::getReviewMessage, reviewMessage)
+                .eq(Order::getId, orderId)
+                .eq(Order::getUserId, userId)
+                .eq(Order::getIsDeleted, 0);
+        return orderMapper.update(orderUpdateWrapper) > 0;
     }
 
     private @NotNull OrderDTO orderToDTO(Order dto) {

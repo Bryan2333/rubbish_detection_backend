@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.bryan.rubbish_detection_backend.entity.Order;
 import com.bryan.rubbish_detection_backend.entity.PageResult;
 import com.bryan.rubbish_detection_backend.entity.dto.OrderDTO;
-import org.aspectj.weaver.ast.Or;
 
 import java.util.List;
 import java.util.Map;
@@ -19,4 +18,8 @@ public interface OrderService extends IService<Order> {
     Map<String, Object> updateByAdmin(OrderDTO orderDTO);
 
     List<OrderDTO> getRecentOrder(Long userId);
+
+    Boolean cancelOrder(Long userId, Long orderId);
+
+    Boolean saveReview(Long userId, Long orderId, Integer reviewRate, String reviewMessage);
 }
