@@ -2,6 +2,7 @@ package com.bryan.rubbish_detection_backend.entity.dto;
 
 import com.bryan.rubbish_detection_backend.entity.Address;
 import com.bryan.rubbish_detection_backend.entity.Waste;
+import com.bryan.rubbish_detection_backend.entity.enumeration.OrderStatusEnum;
 import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -49,7 +50,7 @@ public class OrderDTO implements Serializable {
     private LocalDateTime orderDate;
 
     @NotNull(message = "订单状态不能为空")
-    private Integer orderStatus;
+    private OrderStatusEnum orderStatus;
 
     @NotNull(message = "预估价格不能为空")
     private BigDecimal estimatedPrice;

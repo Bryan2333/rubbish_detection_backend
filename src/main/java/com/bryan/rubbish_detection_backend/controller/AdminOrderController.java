@@ -1,7 +1,6 @@
 package com.bryan.rubbish_detection_backend.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
-import cn.dev33.satoken.annotation.SaIgnore;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.bryan.rubbish_detection_backend.entity.Order;
 import com.bryan.rubbish_detection_backend.entity.PageResult;
@@ -9,13 +8,10 @@ import com.bryan.rubbish_detection_backend.entity.Result;
 import com.bryan.rubbish_detection_backend.entity.User;
 import com.bryan.rubbish_detection_backend.entity.dto.OrderDTO;
 import com.bryan.rubbish_detection_backend.service.OrderService;
-import com.bryan.rubbish_detection_backend.service.UserService;
-import com.bryan.rubbish_detection_backend.utils.StpKit;
 import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
 import com.bryan.rubbish_detection_backend.websocket.WebSocketNotifier;
 import jakarta.annotation.Resource;
 import jakarta.validation.groups.Default;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -81,7 +77,7 @@ public class AdminOrderController {
             return Result.error("-1", "更新订单信息失败");
         }
 
-        if (updatedDTO.getOrderStatus() == 2) {
+        if (updatedDTO.getOrderStatus().getStatusCode() == 2) {
             webSocketNotifier.notifyUserUpdate(updatedDTO.getUserId(), updatedUser);
         }
 

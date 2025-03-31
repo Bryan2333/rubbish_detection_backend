@@ -117,7 +117,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         OrderDTO updatedDTO = saveOrUpdate(orderDTO);
 
         // 如果订单已完成，更新用户的参与次数和总回收金额
-        if (updatedDTO.getOrderStatus() == 2) {
+        if (updatedDTO.getOrderStatus().getStatusCode() == 2) {
             dbUser.setParticipationCount(dbUser.getParticipationCount() + 1);
             dbUser.setTotalRecycleAmount(dbUser.getTotalRecycleAmount().add(updatedDTO.getActualPrice()));
             userMapper.updateById(dbUser);

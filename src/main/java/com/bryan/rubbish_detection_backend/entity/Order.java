@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bryan.rubbish_detection_backend.entity.enumeration.OrderStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ public class Order implements Serializable {
     @TableField(exist = false)
     private Address address;
     private LocalDateTime orderDate;
-    private Integer orderStatus;
+    private OrderStatusEnum orderStatus;
     private BigDecimal estimatedPrice;
     private BigDecimal actualPrice;
     private LocalDateTime createdAt;
