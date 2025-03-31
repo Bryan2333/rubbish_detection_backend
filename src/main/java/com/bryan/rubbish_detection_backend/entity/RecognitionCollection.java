@@ -5,13 +5,12 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.bryan.rubbish_detection_backend.annotation.Base64ImageConstraint;
+import com.bryan.rubbish_detection_backend.entity.enumeration.WasteTypeEnum;
 import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.groups.Default;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -56,7 +55,7 @@ public class RecognitionCollection {
     private String rubbishName;
 
     @NotNull(message = "垃圾类型不能为空")
-    private Integer rubbishType;
+    private WasteTypeEnum rubbishType;
 
     @NotNull(message = "收藏时间不能为空")
     private LocalDateTime createdAt;
