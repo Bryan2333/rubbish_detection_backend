@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bryan.rubbish_detection_backend.entity.PageResult;
 import com.bryan.rubbish_detection_backend.entity.RecognitionCollection;
 import com.bryan.rubbish_detection_backend.entity.User;
+import com.bryan.rubbish_detection_backend.entity.enumeration.WasteTypeEnum;
 import com.bryan.rubbish_detection_backend.exception.CustomException;
 import com.bryan.rubbish_detection_backend.mapper.CollectionMapper;
 import com.bryan.rubbish_detection_backend.mapper.UserMapper;
@@ -42,11 +43,11 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Recogni
      * 2  湿垃圾 -> 1
      * 3  干垃圾 -> 0
      */
-    private final HashMap<Integer, Integer> rubbishTypeMap = new HashMap<>() {{
-        put(0, 2);
-        put(1, 3);
-        put(2, 1);
-        put(3, 0);
+    private final HashMap<Integer, WasteTypeEnum> rubbishTypeMap = new HashMap<>() {{
+        put(0, WasteTypeEnum.RECYCLE);
+        put(1, WasteTypeEnum.HARMFUL);
+        put(2, WasteTypeEnum.WET);
+        put(3, WasteTypeEnum.DRY);
     }};
 
     @Override

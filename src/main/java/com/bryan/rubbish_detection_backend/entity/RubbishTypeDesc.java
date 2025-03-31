@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bryan.rubbish_detection_backend.entity.enumeration.WasteTypeEnum;
 import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +27,7 @@ public class RubbishTypeDesc implements Serializable {
     private Integer id;
 
     @NotNull(message = "垃圾类型不能为空")
-    private Integer type;
+    private WasteTypeEnum type;
 
     @NotNull(message = "垃圾名称不能为空")
     private String name;

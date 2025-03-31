@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.bryan.rubbish_detection_backend.entity.enumeration.WasteTypeEnum;
 import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -24,7 +25,7 @@ public class Waste implements Serializable {
     private Long id;
 
     @NotNull(message = "废品类型不能为空")
-    private Integer type;
+    private WasteTypeEnum type;
 
     @NotBlank(message = "废品名称不能为空")
     @Size(max = 20, message = "废品名称不能超过20个字符")
