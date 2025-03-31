@@ -1,11 +1,11 @@
 package com.bryan.rubbish_detection_backend.entity.dto;
 
+import com.bryan.rubbish_detection_backend.entity.enumeration.CaptchaServiceTypeEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.jetbrains.annotations.Contract;
 
 public class CaptchaRequestDTO {
     @Data
@@ -14,7 +14,7 @@ public class CaptchaRequestDTO {
         @Email(message = "邮箱格式不正确")
         private String email;
 
-        public final int serviceType = 0;
+        public final CaptchaServiceTypeEnum serviceType = CaptchaServiceTypeEnum.REGISTER;
     }
 
     @Data
@@ -26,7 +26,7 @@ public class CaptchaRequestDTO {
         @Email(message = "邮箱格式不正确")
         private String newEmail;
 
-        public final int serviceType = 1;
+        public final CaptchaServiceTypeEnum serviceType = CaptchaServiceTypeEnum.CHANGE_EMAIL;
     }
 
     @Data
@@ -34,7 +34,7 @@ public class CaptchaRequestDTO {
         @NotNull(message = "用户名ID不能为空")
         private Long userId;
 
-        public final int serviceType = 2;
+        public final CaptchaServiceTypeEnum serviceType = CaptchaServiceTypeEnum.CHANGE_PASSWORD;
     }
 
     @Data
@@ -47,17 +47,6 @@ public class CaptchaRequestDTO {
         @Email(message = "邮箱格式不正确")
         private String email;
 
-        public final int serviceType = 3;
-    }
-
-    @Contract(pure = true)
-    public static @org.jetbrains.annotations.NotNull String getServiceName(int serviceType) {
-        return switch (serviceType) {
-            case 0 -> "注册新用户";
-            case 1 -> "修改邮箱";
-            case 2 -> "修改密码";
-            case 3 -> "找回密码";
-            default -> "未知";
-        };
+        public final CaptchaServiceTypeEnum serviceType = CaptchaServiceTypeEnum.FORGOT_PASSWORD;
     }
 }

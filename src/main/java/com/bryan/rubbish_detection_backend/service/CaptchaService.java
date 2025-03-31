@@ -5,12 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.bryan.rubbish_detection_backend.entity.User;
 import com.bryan.rubbish_detection_backend.entity.dto.CaptchaRequestDTO;
+import com.bryan.rubbish_detection_backend.entity.enumeration.CaptchaServiceTypeEnum;
 import com.bryan.rubbish_detection_backend.exception.CustomException;
 import com.bryan.rubbish_detection_backend.mapper.UserMapper;
 import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.validation.Valid;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +51,7 @@ public class CaptchaService {
         }
 
         String verifyCode = generateVerifyCode();
-        int serviceType = request.serviceType;
+        int serviceType = request.serviceType.getType();
 
         sendVerifyCode(email, verifyCode, serviceType);
 
@@ -69,7 +69,7 @@ public class CaptchaService {
         }
 
         String verifyCode = generateVerifyCode();
-        int serviceType = request.serviceType;
+        int serviceType = request.serviceType.getType();
 
         sendVerifyCode(user.getEmail(), verifyCode, serviceType);
 
@@ -92,7 +92,7 @@ public class CaptchaService {
         }
 
         String verifyCode = generateVerifyCode();
-        int serviceType = request.serviceType;
+        int serviceType = request.serviceType.getType();
 
         sendVerifyCode(request.getNewEmail(), verifyCode, serviceType);
 
@@ -114,7 +114,7 @@ public class CaptchaService {
         }
 
         String verifyCode = generateVerifyCode();
-        int serviceType = request.serviceType;
+        int serviceType = request.serviceType.getType();
 
         sendVerifyCode(user.getEmail(), verifyCode, serviceType);
 
@@ -127,7 +127,7 @@ public class CaptchaService {
     }
 
     private void sendVerifyCode(String email, String verifyCode, Integer serviceType) {
-        String serviceName = CaptchaRequestDTO.getServiceName(serviceType);
+        String serviceName = CaptchaServiceTypeEnum.getDescription(serviceType);
         String content = getContent(verifyCode, serviceName);
         try {
             sendEmail(email, serviceName + "-验证码", content);
