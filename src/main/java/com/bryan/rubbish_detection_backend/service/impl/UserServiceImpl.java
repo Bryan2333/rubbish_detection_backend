@@ -44,7 +44,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         checkUserExistence(dto.getUsername(), dto.getEmail());
 
-        String verifyCodeKey = VERIFY_CODE_PREFIX + dto.serviceType + ":" + dto.getEmail();
+        String verifyCodeKey = VERIFY_CODE_PREFIX + dto.serviceType.getType() + ":" + dto.getEmail();
         validateVerificationCode(verifyCodeKey, dto.getVerifyCode());
 
         User newUser = buildUser(dto);
@@ -141,7 +141,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new CustomException("两次密码不一致");
         }
 
-        String verifyCodeKey = VERIFY_CODE_PREFIX + dto.serviceType + ":" + dto.getUserId();
+        String verifyCodeKey = VERIFY_CODE_PREFIX + dto.serviceType.getType() + ":" + dto.getUserId();
         validateVerificationCode(verifyCodeKey, dto.getVerifyCode());
 
         existUser.setPassword(passwordEncoder.encode(dto.getNewPassword()));
@@ -167,7 +167,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new CustomException("用户不存在");
         }
 
-        String verifyCodeKey = VERIFY_CODE_PREFIX + dto.serviceType + ":" + dto.getUserId();
+        String verifyCodeKey = VERIFY_CODE_PREFIX + dto.serviceType.getType() + ":" + dto.getUserId();
         validateVerificationCode(verifyCodeKey, dto.getVerifyCode());
 
         existUser.setEmail(dto.getNewEmail());
@@ -199,7 +199,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new CustomException("两次密码不一致");
         }
 
-        String verifyCodeKey = VERIFY_CODE_PREFIX + dto.serviceType + ":" + existUser.getId();
+        String verifyCodeKey = VERIFY_CODE_PREFIX + dto.serviceType.getType() + ":" + existUser.getId();
         String verifyCode = stringRedisTemplate.opsForValue().get(verifyCodeKey);
         if (!StringUtils.hasText(verifyCode)) {
             throw new CustomException("验证码已过期，请重新获取");

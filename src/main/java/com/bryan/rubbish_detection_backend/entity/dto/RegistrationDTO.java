@@ -1,5 +1,6 @@
 package com.bryan.rubbish_detection_backend.entity.dto;
 
+import com.bryan.rubbish_detection_backend.entity.enumeration.CaptchaServiceTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -20,5 +21,5 @@ public class RegistrationDTO extends UserDTO {
     @Size(min = 6, max = 6, message = "验证码长度必须为6")
     private String verifyCode;
 
-    public final int serviceType = 0;
+    public final CaptchaServiceTypeEnum serviceType = CaptchaServiceTypeEnum.REGISTER;
 }
