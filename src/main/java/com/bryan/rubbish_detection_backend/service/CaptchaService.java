@@ -131,8 +131,12 @@ public class CaptchaService {
         String content = getContent(verifyCode, serviceName);
         try {
             sendEmail(email, serviceName + "-验证码", content);
-        } catch (MessagingException e) {
-            throw new CustomException("验证码发送失败，请稍后重试");
+        } catch (Exception e) {
+            if (e.getMessage().contains("550")) {
+                throw new CustomException("邮箱地址不存在或不可用，请检查邮箱地址");
+            } else {
+                throw new CustomException("验证码发送失败，请稍后再试");
+            }
         }
     }
 
