@@ -1,10 +1,7 @@
 package com.bryan.rubbish_detection_backend.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.bryan.rubbish_detection_backend.entity.PageResult;
 import com.bryan.rubbish_detection_backend.entity.Result;
 import com.bryan.rubbish_detection_backend.entity.User;
@@ -12,12 +9,10 @@ import com.bryan.rubbish_detection_backend.entity.dto.AdminUserDTO;
 import com.bryan.rubbish_detection_backend.entity.dto.UserDTO;
 import com.bryan.rubbish_detection_backend.service.UserService;
 import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
+import com.bryan.rubbish_detection_backend.websocket.WebSocketNotifier;
 import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
-import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +24,9 @@ import java.util.List;
 public class AdminUserController {
     @Resource
     private UserService userService;
+
+    @Resource
+    private WebSocketNotifier webSocketNotifier;
 
     @PostMapping("/findByPage")
     public Result<PageResult<UserDTO>> findByPage(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
@@ -61,6 +59,8 @@ public class AdminUserController {
         if (updated == null) {
             return Result.error("-1", "更新用户失败");
         }
+
+        webSocketNotifier.notifyUserUpdate(updated.getId(), updated);
 
         return Result.success();
     }
