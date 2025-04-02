@@ -13,11 +13,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @TableName("recognition_collection")
-public class RecognitionCollection {
+public class RecognitionCollection implements Serializable {
     @TableId(type = IdType.AUTO)
     @NotNull(
             message = "识别收藏ID不能为空",

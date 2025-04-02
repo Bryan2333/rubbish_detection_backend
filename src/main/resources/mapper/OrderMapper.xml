@@ -101,4 +101,13 @@
         <include refid="sql_base"/>
         ${ew.customSqlSegment}
     </select>
+
+    <select id="getOrderCountByWasteType" resultType="Map">
+        SELECT w.type   AS wasteType,
+               COUNT(*) AS orderCount
+        FROM orders o
+                 JOIN order_waste w ON o.waste_id = w.id
+        WHERE o.is_deleted = 0
+        GROUP BY w.type
+    </select>
 </mapper>

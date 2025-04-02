@@ -1,5 +1,6 @@
 package com.bryan.rubbish_detection_backend.service.impl;
 
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -24,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, RecognitionCollection> implements CollectionService {
@@ -136,6 +138,19 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Recogni
         }
 
         return saveCollection(dbUser, dto);
+    }
+
+    @Override
+    public List<Map<String, Object>> getCollectionCountByWasteType() {
+        List<Map<String, Object>> collectionCountByWasteType = collectionMapper.getCollectionCountByWasteType();
+        return collectionCountByWasteType.stream()
+                .map(map -> {
+                    int wasteType = NumberUtil.parseInt(map.get("wasteType").toString());
+                    long collectionCount = NumberUtil.parseLong(map.get("collectionCount").toString());
+                    String wasteTypeName = WasteTypeEnum.getNameByType(wasteType);
+                    assert wasteTypeName != null;
+                    return Map.<String, Object>of("name", wasteTypeName, "value", collectionCount);
+                }).toList();
     }
 
     @Contract("_, null -> fail; null, !null -> fail")
