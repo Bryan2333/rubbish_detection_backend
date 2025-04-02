@@ -4,6 +4,10 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
@@ -30,4 +34,13 @@ public enum WasteTypeEnum {
     private final int type;
 
     private final String name;
+
+    public static @Nullable String getNameByType(int type) {
+        return Arrays
+                .stream(WasteTypeEnum.values())
+                .filter((wasteType) -> Objects.equals(wasteType.getType(), type))
+                .map(WasteTypeEnum::getName)
+                .findFirst()
+                .orElse(null);
+    }
 }

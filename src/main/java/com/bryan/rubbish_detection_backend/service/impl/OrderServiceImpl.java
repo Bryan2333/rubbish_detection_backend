@@ -6,7 +6,6 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -27,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -119,22 +119,43 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         LambdaQueryWrapper<Order> orderExistQuery = new LambdaQueryWrapper<>();
         orderExistQuery.eq(Order::getId, orderDTO.getId()).eq(Order::getUserId, orderDTO.getUserId()).eq(Order::getIsDeleted, 0);
-        if (null == orderMapper.selectOne(orderExistQuery)) {
+        Order dbOrder = getOne(orderExistQuery);
+        if (dbOrder == null) {
             throw new CustomException("订单不存在");
         }
 
-        OrderDTO updatedDTO = saveOrUpdate(orderDTO);
+        OrderDTO updatedOrder = saveOrUpdate(orderDTO);
 
+        BigDecimal oldAmount = dbOrder.getActualPrice() == null ? BigDecimal.ZERO : dbOrder.getActualPrice();
+        BigDecimal newAmount = updatedOrder.getActualPrice() == null ? BigDecimal.ZERO : updatedOrder.getActualPrice();
+
+        OrderStatusEnum oldStatus = dbOrder.getOrderStatus();
+        OrderStatusEnum newStatus = updatedOrder.getOrderStatus();
+
+        boolean needUpdate = false;
         // 如果订单已完成，更新用户的参与次数和总回收金额
-        if (updatedDTO.getOrderStatus().getStatusCode() == 2) {
+        if (oldStatus != OrderStatusEnum.COMPLETED && newStatus == OrderStatusEnum.COMPLETED) {
             dbUser.setParticipationCount(dbUser.getParticipationCount() + 1);
-            dbUser.setTotalRecycleAmount(dbUser.getTotalRecycleAmount().add(updatedDTO.getActualPrice()));
-            userMapper.updateById(dbUser);
+            dbUser.setTotalRecycleAmount(dbUser.getTotalRecycleAmount().add(updatedOrder.getActualPrice()));
+            needUpdate = true;
+        } else if (oldStatus == OrderStatusEnum.COMPLETED && newStatus == OrderStatusEnum.COMPLETED) {
+            if (oldAmount.compareTo(newAmount) != 0) {
+                BigDecimal amountDiff = newAmount.subtract(oldAmount);
+                dbUser.setTotalRecycleAmount(dbUser.getTotalRecycleAmount().add(amountDiff));
+                needUpdate = true;
+            }
+        }
+
+        if (needUpdate) {
+            int i = userMapper.updateById(dbUser);
+            if (i <= 0) {
+                throw new CustomException("更新用户信息失败");
+            }
         }
 
         Map<String, Object> map = new HashMap<>();
         map.put("user", dbUser);
-        map.put("order", updatedDTO);
+        map.put("order", updatedOrder);
 
         return map;
     }
@@ -163,7 +184,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return recentOrder.stream().map(this::orderToDTO).toList();
     }
 
-    public Boolean cancelOrder(Long userId, Long orderId) {
+    public OrderDTO cancelOrder(Long userId, Long orderId) {
         if (userId == null || orderId == null) {
             throw new CustomException("参数异常");
         }
@@ -176,21 +197,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         LambdaQueryWrapper<Order> orderExistQuery = new LambdaQueryWrapper<>();
         orderExistQuery.eq(Order::getId, orderId).eq(Order::getUserId, userId).eq(Order::getIsDeleted, 0).ne(Order::getOrderStatus, 3);
-        Order order = orderMapper.selectOne(orderExistQuery);
-        if (order == null) {
+        Order dbOrder = getOne(orderExistQuery);
+        if (dbOrder == null) {
             throw new CustomException("订单不存在");
         }
 
-        LambdaUpdateWrapper<Order> orderUpdateWrapper = new LambdaUpdateWrapper<>();
-        orderUpdateWrapper
-                .set(Order::getOrderStatus, 3)
-                .eq(Order::getId, orderId)
-                .eq(Order::getUserId, userId)
-                .eq(Order::getIsDeleted, 0);
-        return orderMapper.update(orderUpdateWrapper) > 0;
+        dbOrder.setOrderStatus(OrderStatusEnum.CANCELED);
+        if (!updateById(dbOrder)) {
+            throw new CustomException("取消订单失败");
+        }
+
+        return orderToDTO(dbOrder);
     }
 
-    public Boolean saveReview(Long userId, Long orderId, Integer reviewRate, String reviewMessage) {
+    public OrderDTO saveReview(Long userId, Long orderId, Integer reviewRate, String reviewMessage) {
         if (userId == null || orderId == null || reviewRate == null || reviewMessage == null) {
             throw new CustomException("参数异常");
         }
@@ -203,12 +223,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         LambdaQueryWrapper<Order> orderExistQuery = new LambdaQueryWrapper<>();
         orderExistQuery.eq(Order::getId, orderId).eq(Order::getUserId, userId).eq(Order::getIsDeleted, 0).eq(Order::getOrderStatus, 2);
-        Order order = orderMapper.selectOne(orderExistQuery);
-        if (order == null) {
+        Order dbOrder = getOne(orderExistQuery);
+        if (dbOrder == null) {
             throw new CustomException("订单不存在");
         }
 
-        if (order.getReviewRate() != null) {
+        if (dbOrder.getReviewRate() != null) {
             throw new CustomException("您已评价过该订单");
         }
 
@@ -220,14 +240,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             throw new CustomException("评价内容不能超过50个字");
         }
 
-        LambdaUpdateWrapper<Order> orderUpdateWrapper = new LambdaUpdateWrapper<>();
-        orderUpdateWrapper
-                .set(Order::getReviewRate, reviewRate)
-                .set(Order::getReviewMessage, reviewMessage)
-                .eq(Order::getId, orderId)
-                .eq(Order::getUserId, userId)
-                .eq(Order::getIsDeleted, 0);
-        return orderMapper.update(orderUpdateWrapper) > 0;
+        dbOrder.setReviewRate(reviewRate);
+        dbOrder.setReviewMessage(reviewMessage);
+
+        if (!updateById(dbOrder)) {
+            throw new CustomException("评价订单失败");
+        }
+
+        return orderToDTO(dbOrder);
     }
 
     @Override
@@ -310,7 +330,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         List<WastePhoto> processWastePhotos = processWastePhotos(orderDTO.getWaste().getPhotos(), wasteId);
         waste.setPhotos(processWastePhotos);
 
-        if (!orderMapper.insertOrUpdate(order)) {
+        if (!saveOrUpdate(order)) {
             throw new CustomException("订单信息保存失败");
         }
 
