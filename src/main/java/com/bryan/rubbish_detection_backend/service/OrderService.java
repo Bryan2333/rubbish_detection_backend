@@ -19,7 +19,11 @@ public interface OrderService extends IService<Order> {
 
     List<OrderDTO> getRecentOrder(Long userId);
 
-    Boolean cancelOrder(Long userId, Long orderId);
+    OrderDTO cancelOrder(Long userId, Long orderId);
 
     Boolean saveReview(Long userId, Long orderId, Integer reviewRate, String reviewMessage);
+
+    List<Map<String, Object>> getOrderCountByWasteType();
+
+    Map<String, Object> getWeeklyOrderCount();
 }

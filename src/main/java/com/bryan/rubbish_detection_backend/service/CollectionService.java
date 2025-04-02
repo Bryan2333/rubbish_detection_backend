@@ -5,6 +5,7 @@ import com.bryan.rubbish_detection_backend.entity.PageResult;
 import com.bryan.rubbish_detection_backend.entity.RecognitionCollection;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CollectionService extends IService<RecognitionCollection> {
     Boolean saveByUser(RecognitionCollection dto);
@@ -16,4 +17,6 @@ public interface CollectionService extends IService<RecognitionCollection> {
     PageResult<RecognitionCollection> findByPageByAdmin(String username, Integer pageNum, Integer pageSize);
 
     Boolean updateByAdmin(RecognitionCollection dto);
+
+    List<Map<String, Object>> getCollectionCountByWasteType();
 }

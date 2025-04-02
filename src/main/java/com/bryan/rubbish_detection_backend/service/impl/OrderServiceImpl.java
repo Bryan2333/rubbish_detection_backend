@@ -1,5 +1,9 @@
 package com.bryan.rubbish_detection_backend.service.impl;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -9,6 +13,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bryan.rubbish_detection_backend.entity.*;
 import com.bryan.rubbish_detection_backend.entity.dto.OrderDTO;
+import com.bryan.rubbish_detection_backend.entity.enumeration.OrderStatusEnum;
+import com.bryan.rubbish_detection_backend.entity.enumeration.WasteTypeEnum;
 import com.bryan.rubbish_detection_backend.exception.CustomException;
 import com.bryan.rubbish_detection_backend.mapper.*;
 import com.bryan.rubbish_detection_backend.service.OrderService;
@@ -21,8 +27,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
@@ -219,6 +228,51 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 .eq(Order::getUserId, userId)
                 .eq(Order::getIsDeleted, 0);
         return orderMapper.update(orderUpdateWrapper) > 0;
+    }
+
+    @Override
+    public List<Map<String, Object>> getOrderCountByWasteType() {
+        List<Map<String, Object>> orderCountByWasteType = orderMapper.getOrderCountByWasteType();
+        return orderCountByWasteType.stream()
+                .map(map -> {
+                    int wasteType = NumberUtil.parseInt(map.get("wasteType").toString());
+                    long orderCount = NumberUtil.parseLong(map.get("orderCount").toString());
+                    String wasteTypeName = WasteTypeEnum.getNameByType(wasteType);
+                    assert wasteTypeName != null;
+                    return Map.<String, Object>of("name", wasteTypeName, "value", orderCount);
+                }).toList();
+    }
+
+    @Override
+    public Map<String, Object> getWeeklyOrderCount() {
+        Map<String, Object> resultMap = new HashMap<>();
+
+        ZoneId zoneId = ZoneId.systemDefault();
+        LocalDate today = LocalDate.now();
+        LocalDate start = today.minusDays(7);
+
+        List<String> xList = DateUtil.rangeToList(
+                        Date.from(start.atStartOfDay(zoneId).toInstant()),
+                        Date.from(today.atStartOfDay(zoneId).toInstant()),
+                        DateField.DAY_OF_YEAR)
+                .stream().map(dateTime -> DateUtil.format(dateTime, "yyyy年MM月dd日")).toList();
+
+        LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.ge(Order::getOrderDate, start);
+        List<Order> orders = list(queryWrapper);
+
+        // 将订单日期格式化后分组统计
+        Map<String, Long> countMap = orders.stream()
+                .filter(order -> ObjectUtil.isNotEmpty(order.getOrderDate()))
+                .collect(Collectors.groupingBy(order -> DateUtil.format(order.getOrderDate(), "yyyy年MM月dd日"), Collectors.counting()));
+
+        // 获取每一天的订单数量
+        List<Long> yList = xList.stream().map(day -> countMap.getOrDefault(day, 0L)).toList();
+
+        resultMap.put("xAsis", xList);
+        resultMap.put("yAsis", yList);
+
+        return resultMap;
     }
 
     private @NotNull OrderDTO orderToDTO(Order dto) {

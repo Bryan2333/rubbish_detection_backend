@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bryan.rubbish_detection_backend.mapper.CollectionMapper">
+    <cache-ref namespace="com.bryan.rubbish_detection_backend.mapper.CollectionMapper"/>
+    <select id="getCollectionCountByWasteType" resultType="Map">
+        SELECT rc.rubbish_type AS wasteType,
+               COUNT(*)        AS collectionCount
+        FROM recognition_collection rc
+        WHERE rc.is_deleted = 0
+        GROUP BY rc.rubbish_type;
+    </select>
+</mapper>
