@@ -21,7 +21,7 @@ public interface OrderService extends IService<Order> {
 
     OrderDTO cancelOrder(Long userId, Long orderId);
 
-    Boolean saveReview(Long userId, Long orderId, Integer reviewRate, String reviewMessage);
+    OrderDTO saveReview(Long userId, Long orderId, Integer reviewRate, String reviewMessage);
 
     List<Map<String, Object>> getOrderCountByWasteType();
 

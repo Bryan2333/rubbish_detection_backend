@@ -56,7 +56,7 @@ public class UserOrderController {
     public Result<OrderDTO> addOrder(@Validated({Default.class, ValidationGroups.FromUser.class, ValidationGroups.Create.class}) @RequestBody OrderDTO orderDTO) {
         OrderDTO result = orderService.saveOrderByUser(orderDTO);
 
-        webSocketNotifier.notifyAdminOrderUpdate(orderDTO);
+        webSocketNotifier.notifyAdminOrderUpdate(result);
 
         return Result.success(result);
     }
@@ -73,10 +73,12 @@ public class UserOrderController {
     @CheckCurrentUser
     public Result<Object> cancelOrder(@RequestParam("userId") Long userId,
                                       @RequestParam("orderId") Long orderId) {
-        Boolean canceled = orderService.cancelOrder(userId, orderId);
-        if (!canceled) {
+        OrderDTO canceled = orderService.cancelOrder(userId, orderId);
+        if (canceled == null) {
             return Result.error("-1", "取消回收订单失败");
         }
+
+        webSocketNotifier.notifyAdminOrderUpdate(canceled);
 
         return Result.success();
     }
@@ -87,11 +89,13 @@ public class UserOrderController {
                                     @RequestParam("orderId") Long orderId,
                                     @RequestParam("reviewRate") Integer reviewRate,
                                     @RequestParam("reviewMessage") String reviewMessage) {
-        Boolean added = orderService.saveReview(userId, orderId, reviewRate, reviewMessage);
+        OrderDTO added = orderService.saveReview(userId, orderId, reviewRate, reviewMessage);
 
-        if (!added) {
+        if (added == null) {
             return Result.error("-1", "提交订单评价失败");
         }
+
+        webSocketNotifier.notifyAdminOrderUpdate(added);
 
         return Result.success();
     }
