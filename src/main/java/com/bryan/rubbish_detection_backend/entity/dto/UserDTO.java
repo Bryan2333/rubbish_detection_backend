@@ -36,6 +36,4 @@ public class UserDTO {
 
     private Integer participationCount;
     private BigDecimal totalRecycleAmount;
-
-    private String role;
 }
