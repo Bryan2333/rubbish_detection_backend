@@ -1,5 +1,6 @@
 package com.bryan.rubbish_detection_backend.websocket;
 
+import com.bryan.rubbish_detection_backend.entity.dto.OrderDTO;
 import com.bryan.rubbish_detection_backend.utils.StpKit;
 import jakarta.annotation.Resource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -23,5 +24,12 @@ public class WebSocketNotifier {
 
     public void notifyAdminFeedbackUpdate(Object updatedFeedback) {
         simpMessagingTemplate.convertAndSend("/topic/admin/feedback", updatedFeedback);
+    }
+
+    public void notifyUserOrderUpdate(Long userId, OrderDTO orderDTO) {
+        String userToken = StpKit.USER.getTokenValueByLoginId(userId);
+        if (userToken != null) {
+            simpMessagingTemplate.convertAndSend("/topic/order/" + userToken, orderDTO);
+        }
     }
 }

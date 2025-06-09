@@ -77,9 +77,8 @@ public class AdminOrderController {
             return Result.error("-1", "更新订单信息失败");
         }
 
-        if (updatedDTO.getOrderStatus().getStatusCode() == 2) {
-            webSocketNotifier.notifyUserUpdate(updatedDTO.getUserId(), updatedUser);
-        }
+        webSocketNotifier.notifyUserOrderUpdate(updatedUser.getId(), updatedDTO);
+        webSocketNotifier.notifyUserUpdate(updatedUser.getId(), updatedUser);
 
         return Result.success(orderDTO);
     }
