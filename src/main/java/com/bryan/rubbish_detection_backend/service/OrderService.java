@@ -17,7 +17,7 @@ public interface OrderService extends IService<Order> {
 
     Map<String, Object> updateByAdmin(OrderDTO orderDTO);
 
-    List<OrderDTO> getRecentOrder(Long userId);
+    List<OrderDTO> getRecentOrder(Long userId, Integer orderStatus);
 
     OrderDTO cancelOrder(Long userId, Long orderId);
 

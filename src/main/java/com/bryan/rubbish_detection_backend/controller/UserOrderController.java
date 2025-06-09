@@ -5,6 +5,7 @@ import com.bryan.rubbish_detection_backend.annotation.CheckCurrentUser;
 import com.bryan.rubbish_detection_backend.entity.PageResult;
 import com.bryan.rubbish_detection_backend.entity.Result;
 import com.bryan.rubbish_detection_backend.entity.dto.OrderDTO;
+import com.bryan.rubbish_detection_backend.entity.enumeration.OrderStatusEnum;
 import com.bryan.rubbish_detection_backend.exception.CustomException;
 import com.bryan.rubbish_detection_backend.service.OrderService;
 import com.bryan.rubbish_detection_backend.validator.ValidationGroups;
@@ -63,8 +64,9 @@ public class UserOrderController {
 
     @GetMapping("/getRecent")
     @CheckCurrentUser
-    public Result<List<OrderDTO>> getRecentOrder(@RequestParam("userId") Long userId) {
-        List<OrderDTO> orders = orderService.getRecentOrder(userId);
+    public Result<List<OrderDTO>> getRecentOrder(@RequestParam("userId") Long userId,
+                                                 @RequestParam(value = "orderStatus", required = false) Integer orderStatus) {
+        List<OrderDTO> orders = orderService.getRecentOrder(userId, orderStatus);
 
         return Result.success(orders);
     }

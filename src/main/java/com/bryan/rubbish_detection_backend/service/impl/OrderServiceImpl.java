@@ -161,7 +161,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     @Override
-    public List<OrderDTO> getRecentOrder(Long userId) {
+    public List<OrderDTO> getRecentOrder(Long userId, Integer orderStatus) {
         if (userId == null) {
             throw new CustomException("用户ID不能为空");
         }
@@ -174,10 +174,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("o.user_id", userId);
-        queryWrapper.gt("o.order_date", LocalDateTime.now().minusDays(3));
-        queryWrapper.lt("o.order_date", LocalDateTime.now().plusDays(3));
+        queryWrapper.gt("o.order_date", LocalDateTime.now().minusDays(7));
+        queryWrapper.lt("o.order_date", LocalDateTime.now().plusDays(7));
         queryWrapper.eq("o.user_id", userId);
         queryWrapper.eq("o.is_deleted", 0);
+        queryWrapper.eq(orderStatus != null, "o.order_status", orderStatus);
+        queryWrapper.orderByDesc("o.order_date");
 
         List<Order> recentOrder = orderMapper.getRecentOrder(queryWrapper);
 
