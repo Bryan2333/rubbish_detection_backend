@@ -44,9 +44,6 @@ public class User implements Serializable {
     // 累计回收金额
     private BigDecimal totalRecycleAmount;
 
-    // 用户角色
-    private String role;
-
     // 记录创建时间
     private LocalDateTime createdAt;
 
