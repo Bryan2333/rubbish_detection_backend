@@ -93,6 +93,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Recogni
         LambdaQueryWrapper<RecognitionCollection> collectionWrapper = Wrappers.lambdaQuery();
         collectionWrapper.eq(RecognitionCollection::getUserId, userId);
         collectionWrapper.eq(RecognitionCollection::getIsDeleted, 0);
+        collectionWrapper.orderByDesc(RecognitionCollection::getCreatedAt);
 
         Page<RecognitionCollection> page = page(new Page<>(pageNum, pageSize), collectionWrapper);
 
@@ -170,7 +171,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Recogni
 
         // 管理员添加，不需要类型映射
         if (!StringUtils.hasText(dto.getUsername())) {
-            recognitionCollection.setRubbishType(rubbishTypeMap.get(dto.getRubbishType()));
+            recognitionCollection.setRubbishType(rubbishTypeMap.get(dto.getRubbishType().getType()));
         } else {
             recognitionCollection.setRubbishType(dto.getRubbishType());
         }

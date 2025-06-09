@@ -56,6 +56,7 @@ public class RecognitionCollection implements Serializable {
     private String rubbishName;
 
     @NotNull(message = "垃圾类型不能为空")
+    @TableField(value = "rubbish_type")
     private WasteTypeEnum rubbishType;
 
     @NotNull(message = "收藏时间不能为空")
